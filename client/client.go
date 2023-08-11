@@ -35,7 +35,6 @@ func NewClient(config *ClientConfig) *Client {
 
 func (c *Client) Start() {
 	ctx := context.Background()
-
 	for {
 		err := c.Register(ctx)
 		if err != nil {
@@ -63,8 +62,6 @@ func (c *Client) Run(ctx context.Context) {
 }
 
 func (c *Client) MsgHandler(ctx context.Context) {
-
-	//
 	hbSendCh := time.NewTicker(time.Second * 3)
 
 	for {
@@ -84,6 +81,7 @@ func (c *Client) MsgHandler(ctx context.Context) {
 			case msg.MsgTypePong:
 				log.Printf("client#pong... \n")
 			case msg.MsgTypeNewConnReq:
+				log.Printf("client#ConnReq... \n")
 				go c.HandleNewConnReq(ctx)
 
 			}
@@ -98,7 +96,7 @@ func (c *Client) HandleNewConnReq(ctx context.Context) {
 	if err != nil {
 		return
 	}
-	workConn, err := net.Dial("tcp", net.JoinHostPort("127.0.0.1", c.ClientPort))
+	workConn, err := net.Dial("tcp", net.JoinHostPort("39.102.81.17", c.ClientPort))
 	if err != nil {
 		return
 
@@ -157,7 +155,7 @@ func (c *Client) Write(ctx context.Context) {
 }
 
 func (c *Client) Register(ctx context.Context) error {
-	conn, err := net.Dial("tcp", net.JoinHostPort("127.0.0.1", c.ClientPort))
+	conn, err := net.Dial("tcp", net.JoinHostPort("39.102.81.17", c.ClientPort))
 	if err != nil {
 		return err
 	}
@@ -180,8 +178,8 @@ func (c *Client) Register(ctx context.Context) error {
 	}
 	_ = conn.SetReadDeadline(time.Time{})
 	c.Conn = conn
-	c.ReadCh = make(chan *msg.Msg, 5)
-	c.WriteCh = make(chan *msg.Msg, 5)
+	c.ReadCh = make(chan *msg.Msg, 200)
+	c.WriteCh = make(chan *msg.Msg, 200)
 	c.CloseCh = make(chan struct{})
 	log.Printf("Client#register success conn r[%s] l[%s] \n", conn.RemoteAddr(), conn.LocalAddr())
 	return nil
@@ -189,7 +187,7 @@ func (c *Client) Register(ctx context.Context) error {
 
 func main() {
 	C := NewClient(&ClientConfig{
-		ClientPort:  "8888",
+		ClientPort:  "18888",
 		ServicePort: "7860",
 	})
 	C.Start()
